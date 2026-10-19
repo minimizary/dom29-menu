@@ -1,1 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM 29 — Ресторан</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcf9f2;
+            --text-color: #2b2b2a;
+            --accent-color: #8b0000;
+            --border-color: #d1c7b7;
+            --card-bg: #f7f3eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.5;
+            padding: 10px 5px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid var(--border-color);
+            padding: 20px 15px;
+            background-color: #fffdf9;
+            box-shadow: 0 0 15px rgba(0,0,0,0.03);
+            border-radius: 4px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: -2px;
+            color: #555;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+            border-radius: 4px;
+            -webkit-appearance: none;
+        }
+
+        .nav-categories {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 12px;
+            margin-bottom: 25px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 8px;
+            color: var(--text-color);
+            flex-shrink: 0;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .section-title {
+            font-size: 26px;
+            text-align: center;
+            margin: 30px 0 10px;
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .epigraph {
+            font-style: italic;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .dish-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 4px;
+        }
+
+        .dish-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+        }
+
+        .dish-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .dish-name {
+            flex: 0 1 auto;
+            padding-right: 5px;
+        }
+
+        .dots {
+            flex: 1;
+            border-bottom: 1px dotted var(--text-color);
+            margin: 0 5px 4px;
+            min-width: 15px;
+        }
+
+        .dish-price {
+            font-weight: 700;
+            color: var(--accent-color);
+            white-space: nowrap;
+            font-size: 18px;
+        }
+
+        .recommendation {
+            font-size: 13px;
+            font-style: italic;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--text-color);
+            font-style: italic;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo">DOM 29</div>
+        <div class="subtitle">Restaurant</div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда..." onkeyup="filterDishes()">
+
+    <div class="nav-categories" id="categoriesNav"></div>
+
+    <div id="menuContent"></div>
+
+    <div class="footer-note">
+        «Благодарим за оказанное доверие. Пусть каждый день приносит новые поводы для радости!»
+    </div>
+</div>
+
+<script>
+const menuData = [
+    {
+        category: "Холодные закуски",
+        epigraph: "«На тяжёлой доске кусок сыра в слезах... Послушайте доброго совета, налейте обыкновенной русской водки...» — М. Булгаков",
+        items: [
+            { name: "Иваси малосольные с картофелем", price: "300 000 сум", photo: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop" },
+            { name: "Паштет из печени цыплёнка с лесными ягодами", price: "140 000 сум" },
+            { name: "Домашний разносол", price: "110 000 сум" },
+            { name: "Закуска «Гастроном»", price: "810 000 сум", rec: "Рекомендуем употребить белое вино" },
+            { name: "Закуска «DOM 29»", price: "2 800 000 сум" },
+            { name: "Щучья икра по-Одесски", price: "470 000 сум" },
+            { name: "Ассорти из дичи", price: "900 000 сум", rec: "Рекомендуем употребить красное вино или настойку" },
+            { name: "Овощное ассорти", price: "65 000 сум" },
+            { name: "Холодец", price: "85 000 сум" },
+            { name: "Форшмак из сельди", price: "95 000 сум" },
+            { name: "Ассорти сыров", price: "490 000 сум" },
+            { name: "Ассорти грибов", price: "490 000 сум" }
+        ]
+    },
+    {
+        category: "Салаты",
+        epigraph: "«Считалось особым пиком, когда обеды готовил француз Оливье...» — В.А. Гиляровский",
+        items: [
+            { name: "Оливье с раковыми шейками", price: "210 000 сум" },
+            { name: "Винегрет классический", price: "50 000 сум" },
+            { name: "Греческий с сыром фета", price: "145 000 сум" },
+            { name: "Тёплый салат с говяжьей вырезкой", price: "165 000 сум" },
+            { name: "Камчатский крабовый", price: "395 000 сум" },
+            { name: "Салат зелёный «Метрополь»", price: "220 000 сум" },
+            { name: "Салат с руколой и креветками", price: "220 000 сум" },
+            { name: "Сельдь под шубой", price: "95 000 сум" },
+            { name: "Мимоза", price: "85 000 сум" }
+        ]
+    },
+    {
+        category: "Супы",
+        epigraph: "«Вознёсся борщ. И был разлит по мискам...» — Д. Самойлов",
+        items: [
+            { name: "Борщ с пампушками по-Буржуйски", price: "110 000 сум", rec: "Рекомендуем водочку или домашний самогон" },
+            { name: "Солянка сборная по-Хрущёвски", price: "135 000 сум" },
+            { name: "Пельмени с мраморной говядиной", price: "85 000 сум" },
+            { name: "Домашний куриный суп", price: "55 000 сум" },
+            { name: "Рассольник", price: "85 000 сум" },
+            { name: "Уха по-царски", price: "160 000 сум" }
+        ]
+    },
+    {
+        category: "Основные блюда",
+        epigraph: "«Станешь есть котлету по-киевски, а с нее масло, как слёзы...» — А.П. Чехов",
+        items: [
+            { name: "Макароны по-флотски", price: "140 000 сум" },
+            { name: "Говядина по-строгановски", price: "215 000 сум" },
+            { name: "Котлета по-киевски", price: "140 000 сум" },
+            { name: "Обед «Здоровый»", price: "95 000 сум", rec: "Рекомендуем белое вино" },
+            { name: "Мясо по-французски", price: "270 000 сум" },
+            { name: "Сёмга со шпинатом и спаржей", price: "340 000 сум" }
+        ]
+    }
+];
+
+function renderMenu() {
+    const nav = document.getElementById('categoriesNav');
+    const content = document.getElementById('menuContent');
+    nav.innerHTML = '';
+    content.innerHTML = '';
+
+    menuData.forEach((cat, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        btn.innerText = cat.category;
+        btn.onclick = () => document.getElementById(`cat-${idx}`).scrollIntoView({ behavior: 'smooth' });
+        nav.appendChild(btn);
+
+        const section = document.createElement('div');
+        section.id = `cat-${idx}`;
+        
+        let html = `<div class="section-title">${cat.category}</div>`;
+        if (cat.epigraph) html += `<div class="epigraph">${cat.epigraph}</div>`;
+        
+        html += `<div class="menu-grid">`;
+        cat.items.forEach(dish => {
+            html += `
+                <div class="dish-card">
+                    ${dish.photo ? `<img src="${dish.photo}" class="dish-img" alt="${dish.name}">` : ''}
+                    <div class="dish-header">
+                        <span class="dish-name">${dish.name}</span>
+                        <span class="dots"></span>
+                        <span class="dish-price">${dish.price}</span>
+                    </div>
+                    ${dish.rec ? `<div class="recommendation">(${dish.rec})</div>` : ''}
+                </div>
+            `;
+        });
+        html += `</div>`;
+        section.innerHTML = html;
+        content.appendChild(section);
+    });
+}
+
+function filterDishes() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.dish-card');
+    cards.forEach(card => {
+        const name = card.querySelector('.dish-name').innerText.toLowerCase();
+        card.style.display = name.includes(query) ? 'flex' : 'none';
+    });
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
 
