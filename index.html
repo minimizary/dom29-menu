@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOM 29 — Ресторан</title>
+    <title>DOM 29 — Restaurant Menu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #fcf9f2;
@@ -44,13 +44,40 @@
             text-align: center;
             border-bottom: 2px solid var(--text-color);
             padding-bottom: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .lang-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
         }
 
         .logo {
-            font-size: 34px;
+            font-size: 36px;
             font-weight: 700;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
         }
 
@@ -66,7 +93,7 @@
         .search-box {
             width: 100%;
             padding: 12px 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid var(--border-color);
             font-family: 'Montserrat', sans-serif;
             font-size: 14px;
@@ -80,7 +107,7 @@
             display: flex;
             overflow-x: auto;
             white-space: nowrap;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 25px;
             border-bottom: 1px dashed var(--border-color);
             padding-bottom: 12px;
@@ -107,7 +134,7 @@
         .section-title {
             font-size: 26px;
             text-align: center;
-            margin: 30px 0 10px;
+            margin: 35px 0 8px;
             border-bottom: 1px solid var(--text-color);
             padding-bottom: 5px;
             text-transform: uppercase;
@@ -125,7 +152,7 @@
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         @media (min-width: 768px) {
@@ -137,27 +164,18 @@
         .dish-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 12px;
+            padding: 12px 15px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             border-radius: 4px;
         }
 
-        .dish-img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 2px;
-        }
-
         .dish-header {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 700;
         }
 
@@ -177,14 +195,14 @@
             font-weight: 700;
             color: var(--accent-color);
             white-space: nowrap;
-            font-size: 18px;
+            font-size: 17px;
         }
 
         .recommendation {
             font-size: 13px;
             font-style: italic;
             color: #666;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .footer-note {
@@ -201,81 +219,251 @@
 
 <div class="container">
     <div class="header">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
+            <button class="lang-btn" onclick="setLanguage('uz')">UZ</button>
+            <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        </div>
         <div class="logo">DOM 29</div>
         <div class="subtitle">Restaurant</div>
     </div>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда..." onkeyup="filterDishes()">
+    <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда / Qidiruv / Search..." onkeyup="filterDishes()">
 
     <div class="nav-categories" id="categoriesNav"></div>
 
     <div id="menuContent"></div>
 
-    <div class="footer-note">
+    <div class="footer-note" id="footerNote">
         «Благодарим за оказанное доверие. Пусть каждый день приносит новые поводы для радости!»
     </div>
 </div>
 
 <script>
+let currentLang = 'ru';
+
+const labels = {
+    ru: {
+        searchPlaceholder: "Поиск блюда...",
+        footer: "«Благодарим за оказанное доверие. Пусть каждый день приносит новые поводы для радости!»"
+    },
+    uz: {
+        searchPlaceholder: "Taomlarni qidirish...",
+        footer: "«Ishonchingiz uchun tashakkur. Har bir kun sizga quvonch keltirsin!»"
+    },
+    en: {
+        searchPlaceholder: "Search dish...",
+        footer: "«Thank you for your trust. May every day bring you new reasons for joy!»"
+    }
+};
+
 const menuData = [
     {
-        category: "Холодные закуски",
-        epigraph: "«На тяжёлой доске кусок сыра в слезах... Послушайте доброго совета, налейте обыкновенной русской водки...» — М. Булгаков",
+        category: { ru: "Холодные закуски", uz: "Tovuq va sovuqแก yeguliklar", en: "Cold Appetizers" },
+        epigraph: {
+            ru: "«На тяжёлой доске кусок сыра в слезах, и в серебряной кадушке, обложенной снегом, икра...» — М. Булгаков",
+            uz: "«Og'ir taxtada pishloq bo'lagi va qor bilan qoplangan kumush bochkada ikra...» — M. Bulgakov",
+            en: "«On a heavy board a piece of cheese in tears, and in a silver tub surrounded by snow, caviar...» — M. Bulgakov"
+        },
         items: [
-            { name: "Иваси малосольные с картофелем", price: "300 000 сум", photo: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop" },
-            { name: "Паштет из печени цыплёнка с лесными ягодами", price: "140 000 сум" },
-            { name: "Домашний разносол", price: "110 000 сум" },
-            { name: "Закуска «Гастроном»", price: "810 000 сум", rec: "Рекомендуем употребить белое вино" },
-            { name: "Закуска «DOM 29»", price: "2 800 000 сум" },
-            { name: "Щучья икра по-Одесски", price: "470 000 сум" },
-            { name: "Ассорти из дичи", price: "900 000 сум", rec: "Рекомендуем употребить красное вино или настойку" },
-            { name: "Овощное ассорти", price: "65 000 сум" },
-            { name: "Холодец", price: "85 000 сум" },
-            { name: "Форшмак из сельди", price: "95 000 сум" },
-            { name: "Ассорти сыров", price: "490 000 сум" },
-            { name: "Ассорти грибов", price: "490 000 сум" }
+            { name: { ru: "Домашний разносол", uz: "Uyda tayyorlangan tuzlamalar", en: "Homemade Pickles" }, price: "110 000 сум" },
+            { name: { ru: "Паштет из печени цыплёнка с лесными ягодами", uz: "O'rmon mevalari bilan jo'ja jigari pashteti", en: "Chicken Liver Pate with Wild Berries" }, price: "140 000 сум" },
+            { name: { ru: "Домашняя закуска", uz: "Uycha yegulik", en: "Homemade Appetizer" }, price: "155 000 сум" },
+            { name: { ru: "Иваси малосольные с картофелем", uz: "Kartoshka bilan kam tuzlangan Ivasi balig'i", en: "Lightly Salted Ivasi Herring with Potatoes" }, price: "300 000 сум" },
+            { name: { ru: "Закуска «Гастроном»", uz: "«Gastronom» yeguligi", en: "«Gastronom» Appetizer" }, price: "810 000 сум", rec: { ru: "Рекомендуем употребить белое вино", uz: "Oq vino bilan tavsiya etiladi", en: "Recommended with white wine" } },
+            { name: { ru: "Закуска «DOM 29»", uz: "«DOM 29» yeguligi", en: "«DOM 29» Appetizer" }, price: "2 800 000 сум" },
+            { name: { ru: "Щучья икра по-Одесски", uz: "Odesa uslubidagi cho'rtan balig'i ikrasi", en: "Odesa-style Pike Caviar" }, price: "470 000 сум" },
+            { name: { ru: "Ассорти из дичи", uz: "Yovvoyi go'sht assortisi", en: "Wild Game Assortment" }, price: "900 000 сум", rec: { ru: "Рекомендуем употребить красное вино или настойку", uz: "Qizil vino yoki nastoyka bilan tavsiya etiladi", en: "Recommended with red wine or tincture" } },
+            { name: { ru: "Овощное ассорти", uz: "Sabzavotlar assortisi", en: "Assorted Vegetables" }, price: "65 000 сум" },
+            { name: { ru: "Холодец", uz: "Xolodets (go'shtli ilik)", en: "Jellied Meat (Kholodets)" }, price: "85 000 сум", rec: { ru: "Рекомендуем употребить Рижский самогон", uz: "Riga samogoni bilan tavsiya etiladi", en: "Recommended with Riga moonshine" } },
+            { name: { ru: "Форшмак из сельди (сезонное)", uz: "Selddan forshmak (mavsumiy)", en: "Herring Forshmak (Seasonal)" }, price: "95 000 сум", rec: { ru: "Рекомендуем красное или белое вино", uz: "Qizil yoki oq vino bilan tavsiya etiladi", en: "Recommended with red or white wine" } },
+            { name: { ru: "Ассорти сыров", uz: "Pishloqlar assortisi", en: "Cheese Board" }, price: "490 000 сум" },
+            { name: { ru: "Ассорти грибов", uz: "Qo'ziqorinlar assortisi", en: "Assorted Mushrooms" }, price: "490 000 сум" },
+            { name: { ru: "Сет бутербродов «Товарищ, закусывай»", uz: "«O'rtoq, tamaddi qil» buterbrodlar seti", en: "«Comrade, Have a Snack» Sandwich Set" }, price: "290 000 сум" }
         ]
     },
     {
-        category: "Салаты",
-        epigraph: "«Считалось особым пиком, когда обеды готовил француз Оливье...» — В.А. Гиляровский",
+        category: { ru: "Салаты", uz: "Salatlar", en: "Salads" },
+        epigraph: {
+            ru: "«Считалось особым пиком, когда обеды готовил француз Оливье...» — В.А. Гиляровский",
+            uz: "«Tushlikni fransuz Olivye tayyorlagani alohida sharaf hisoblanardi...» — V.A. Gilyarovskiy",
+            en: "«It was considered a special peak when dinners were prepared by the Frenchman Olivier...» — V.A. Gilyarovsky"
+        },
         items: [
-            { name: "Оливье с раковыми шейками", price: "210 000 сум" },
-            { name: "Винегрет классический", price: "50 000 сум" },
-            { name: "Греческий с сыром фета", price: "145 000 сум" },
-            { name: "Тёплый салат с говяжьей вырезкой", price: "165 000 сум" },
-            { name: "Камчатский крабовый", price: "395 000 сум" },
-            { name: "Салат зелёный «Метрополь»", price: "220 000 сум" },
-            { name: "Салат с руколой и креветками", price: "220 000 сум" },
-            { name: "Сельдь под шубой", price: "95 000 сум" },
-            { name: "Мимоза", price: "85 000 сум" }
+            { name: { ru: "Оливье с говядиной / с раковыми шейками", uz: "Mol go'shti / qisqichbaqa dumchalari bilan Olivye", en: "Olivier Salad with Beef / Crayfish Tails" }, price: "85 000 / 210 000 сум" },
+            { name: { ru: "Винегрет классический / с горчицей", uz: "Klassik / xantal bilan Vinegret", en: "Classic / Mustard Vinaigrette" }, price: "50 000 / 55 000 сум" },
+            { name: { ru: "Греческий с сыром фета", uz: "Feta pishlog'i bilan Grek salati", en: "Greek Salad with Feta" }, price: "145 000 сум" },
+            { name: { ru: "«Смак»", uz: "«Smak» salati", en: "«Smak» Salad" }, price: "85 000 сум" },
+            { name: { ru: "Тёплый салат с говяжьей вырезкой", uz: "Mol go'shti bifsteksi bilan issiq salat", en: "Warm Beef Tenderloin Salad" }, price: "165 000 сум" },
+            { name: { ru: "Камчатский крабовый", uz: "Kamchatka krabi bilan salat", en: "Kamchatka Crab Salad" }, price: "395 000 сум" },
+            { name: { ru: "Салат зелёный «Метрополь»", uz: "«Metropol» yashil salati", en: "«Metropol» Green Salad" }, price: "220 000 сум" },
+            { name: { ru: "Салат с руколой и креветками", uz: "Rukkola va krevetkalar bilan salat", en: "Arugula & Shrimp Salad" }, price: "220 000 сум" },
+            { name: { ru: "«Гнездо глухаря»", uz: "«Gnezdo gluxarya» salati", en: "«Capercaillie Nest» Salad" }, price: "120 000 сум" },
+            { name: { ru: "Тёплый салат с печенью кролика и томатами", uz: "Quyon jigari va pomidorli issiq salat", en: "Warm Salad with Rabbit Liver & Tomatoes" }, price: "110 000 сум" },
+            { name: { ru: "«Восточный»", uz: "«Sharqona» salat", en: "«Oriental» Salad" }, price: "65 000 сум" },
+            { name: { ru: "Сельдь под шубой", uz: "Shuba ostidagi seld balig'i", en: "Dressed Herring" }, price: "95 000 сум" },
+            { name: { ru: "«Мимоза»", uz: "«Mimoza» salati", en: "«Mimosa» Salad" }, price: "85 000 сум" },
+            { name: { ru: "Под водочку", uz: "«Aroq bilan» salat", en: "For Vodka Snack" }, price: "125 000 сум" }
         ]
     },
     {
-        category: "Супы",
-        epigraph: "«Вознёсся борщ. И был разлит по мискам...» — Д. Самойлов",
+        category: { ru: "Горячие закуски", uz: "Issiq yeguliklar", en: "Hot Appetizers" },
+        epigraph: {
+            ru: "«Наклоняться он, верно, не захочет, чтобы хлебать, как галушки... Нужно вареник сперва обмакнуть в сметану.» — Н.В. Гоголь",
+            uz: "«Varenikni avval smetanaga botirib olish kerak.» — N.V. Gogol",
+            en: "«First you need to dip the varenik into sour cream.» — N.V. Gogol"
+        },
         items: [
-            { name: "Борщ с пампушками по-Буржуйски", price: "110 000 сум", rec: "Рекомендуем водочку или домашний самогон" },
-            { name: "Солянка сборная по-Хрущёвски", price: "135 000 сум" },
-            { name: "Пельмени с мраморной говядиной", price: "85 000 сум" },
-            { name: "Домашний куриный суп", price: "55 000 сум" },
-            { name: "Рассольник", price: "85 000 сум" },
-            { name: "Уха по-царски", price: "160 000 сум" }
+            { name: { ru: "Вареники с картофелем и грибами", uz: "Kartoshka va qo'ziqorinli vareniklar", en: "Vareniki with Potato & Mushrooms" }, price: "85 000 сум", rec: { ru: "Рекомендуем настойку или водочку", uz: "Nastoyka yoki aroq bilan tavsiya etiladi", en: "Recommended with vodka" } },
+            { name: { ru: "Закуска «Советская»", uz: "«Sovet» uslubidagi yegulik", en: "«Soviet» Appetizer" }, price: "135 000 сум", rec: { ru: "Рекомендуем домашний самогон", uz: "Uy samogoni bilan tavsiya etiladi", en: "Recommended with moonshine" } },
+            { name: { ru: "Язык говяжий со сметанно-горчичным соусом", uz: "Smetana-xantal sousidagi mol tili", en: "Beef Tongue in Sour Cream & Mustard Sauce" }, price: "160 000 сум", rec: { ru: "Рекомендуем игристое", uz: "Kopukli vino bilan tavsiya etiladi", en: "Recommended with sparkling wine" } },
+            { name: { ru: "Креветки на гриле в сливочном соусе", uz: "Qaymoqli sousda гриль krevetkalari", en: "Grilled Shrimps in Cream Sauce" }, price: "155 000 сум", rec: { ru: "Рекомендуем красное вино", uz: "Qizil vino bilan tavsiya etiladi", en: "Recommended with red wine" } },
+            { name: { ru: "Вареники с брынзой в томатах", uz: "Pomidorli brinza pishloqli vareniklar", en: "Vareniki with Brynza in Tomatoes" }, price: "95 000 сум" },
+            { name: { ru: "Картофельные драники с грибами", uz: "Qo'ziqorinli kartoshka draniki", en: "Potato Pancakes with Mushrooms" }, price: "85 000 сум" },
+            { name: { ru: "Пельмени с уткой", uz: "O'rdak go'shtli pelmenlar", en: "Duck Pelmeni" }, price: "115 000 сум" },
+            { name: { ru: "Тефтели с сыром по-деревенски", uz: "Qishloqcha pishloqli teftellar", en: "Rustic Cheese Meatballs" }, price: "195 000 сум" },
+            { name: { ru: "Косточка по-царски", uz: "Shohona ilikli suyak", en: "Royal Marrow Bone" }, price: "165 000 сум" }
         ]
     },
     {
-        category: "Основные блюда",
-        epigraph: "«Станешь есть котлету по-киевски, а с нее масло, как слёзы...» — А.П. Чехов",
+        category: { ru: "Икра", uz: "Ikra", en: "Caviar" },
+        epigraph: {
+            ru: "«Водку тоже хорошо икрой закусывать. Только как? С умом надо...» — А.П. Чехов",
+            uz: "«Aroqni ikra bilan tamaddi qilish ham yaxshi. Faqat aqlli ravishda...» — A.P. Chexov",
+            en: "«It's also good to snack on vodka with caviar. Only with wisdom...» — A.P. Chekhov"
+        },
         items: [
-            { name: "Макароны по-флотски", price: "140 000 сум" },
-            { name: "Говядина по-строгановски", price: "215 000 сум" },
-            { name: "Котлета по-киевски", price: "140 000 сум" },
-            { name: "Обед «Здоровый»", price: "95 000 сум", rec: "Рекомендуем белое вино" },
-            { name: "Мясо по-французски", price: "270 000 сум" },
-            { name: "Сёмга со шпинатом и спаржей", price: "340 000 сум" }
+            { name: { ru: "Чёрная (калуга / осётр)", uz: "Qora ikra (kaluga / osyotr)", en: "Black Caviar (Kaluga / Sturgeon)" }, price: "50г / 100г: 1 100 000 / 2 200 000 сум" },
+            { name: { ru: "Красная", uz: "Qizil ikra", en: "Red Caviar" }, price: "50г: 310 000 сум" },
+            { name: { ru: "Щучья", uz: "Cho'rtan balig'i ikrasi", en: "Pike Caviar" }, price: "50г: 250 000 сум" },
+            { name: { ru: "Заморская (Кабачковая)", uz: "Kavak ikrasi (Zabachkovaya)", en: "Squash Caviar" }, price: "100г: 50 000 сум" }
+        ]
+    },
+    {
+        category: { ru: "Супы", uz: "Sho'rbalar", en: "Soups" },
+        epigraph: {
+            ru: "«Вознёсся борщ. И был разлит по мискам...» — Д. Самойлов",
+            uz: "«Borsh idishlarga quyildi...» — D. Samoylov",
+            en: "«Borscht arose and was poured into bowls...» — D. Samoylov"
+        },
+        items: [
+            { name: { ru: "Борщ с пампушками по-Буржуйски", uz: "Pampushkalar bilan burjuycha Borsh", en: "Bourgeois-style Borscht with Pampushkas" }, price: "110 000 сум", rec: { ru: "Рекомендуем водочку или самогон", uz: "Aroq yoki samogun bilan tavsiya etiladi", en: "Recommended with vodka or moonshine" } },
+            { name: { ru: "Солянка сборная по-Хрущёвски", uz: "Xrushchevcha Solyanka sho'rva", en: "Khrushchev-style Solyanka" }, price: "135 000 сум" },
+            { name: { ru: "Пельмени с мраморной говядиной", uz: "Marmar mol go'shtli pelmenlar", en: "Marbled Beef Pelmeni" }, price: "85 000 сум" },
+            { name: { ru: "Домашний куриный суп", uz: "Uyda tayyorlangan tovuq sho'rva", en: "Homemade Chicken Soup" }, price: "55 000 сум" },
+            { name: { ru: "Рассольник", uz: "Rassolnik sho'rva", en: "Rassolnik Soup" }, price: "85 000 сум", rec: { ru: "Рекомендуем водочку", uz: "Aroq bilan tavsiya etiladi", en: "Recommended with vodka" } },
+            { name: { ru: "Щи деревенские", uz: "Qishloqcha Shi sho'rva", en: "Rustic Shchi Soup" }, price: "125 000 сум", rec: { ru: "Рекомендуем водочку", uz: "Aroq bilan tavsiya etiladi", en: "Recommended with vodka" } },
+            { name: { ru: "Уха по-царски (сезонное)", uz: "Shohona Baliq sho'rva (Uxa)", en: "Royal Fish Soup (Seasonal)" }, price: "160 000 сум" },
+            { name: { ru: "Бабушкин суп с фрикадельками", uz: "Buvijonim frikadelka sho'rvalari", en: "Grandma's Meatball Soup" }, price: "95 000 сум", rec: { ru: "Рекомендуем водочку или самогон", uz: "Aroq yoki samogun bilan", en: "Recommended with vodka" } }
+        ]
+    },
+    {
+        category: { ru: "Основные блюда", uz: "Asosiy taomlar", en: "Main Courses" },
+        epigraph: {
+            ru: "«Станешь есть котлету по-киевски, а с нее масло, как слёзы...» — А.П. Чехов",
+            uz: "«Kiyevcha kotletni yesang, undan saryog' ko'zyoshdek oqadi...» — A.P. Chexov",
+            en: "«When you eat a Chicken Kiev, butter flows like tears...» — A.P. Chekhov"
+        },
+        items: [
+            { name: { ru: "Макароны по-флотски", uz: "Flotcha makaron", en: "Navy-style Pasta with Minced Meat" }, price: "140 000 сум" },
+            { name: { ru: "Тушёнка по ГОСТу", uz: "GOST bo'yicha tushonka go'shti", en: "GOST-style Stewed Beef" }, price: "160 000 сум" },
+            { name: { ru: "Картофель по-домашнему с говядиной", uz: "Mol go'shti bilan uycha kartoshka", en: "Home-style Potatoes with Beef" }, price: "185 000 сум" },
+            { name: { ru: "Говядина по-строгановски", uz: "Befstroganov mol go'shti", en: "Beef Stroganoff" }, price: "215 000 сум" },
+            { name: { ru: "Котлета по-киевски", uz: "Kiyevcha kotlet", en: "Chicken Kiev" }, price: "140 000 сум" },
+            { name: { ru: "Утиная ножка конфи", uz: "Konfi o'rdak oyog'i", en: "Duck Leg Confit" }, price: "210 000 сум" },
+            { name: { ru: "Куриные бёдра в грибном соусе", uz: "Qo'ziqorinli sousda tovuq comchasi", en: "Chicken Thighs in Mushroom Sauce" }, price: "145 000 сум" },
+            { name: { ru: "Обед «Здоровый»", uz: "«Sog'lom» tushlik", en: "«Healthy» Lunch" }, price: "95 000 сум", rec: { ru: "Рекомендуем белое вино", uz: "Oq vino bilan tavsiya etiladi", en: "Recommended with white wine" } },
+            { name: { ru: "Телячьи щёчки", uz: "Buzoqcha yonoqlari", en: "Veal Cheeks" }, price: "225 000 сум" },
+            { name: { ru: "Куриная печень с луком", uz: "Piyozli tovuq jigari", en: "Chicken Liver with Onions" }, price: "95 000 сум", rec: { ru: "Рекомендуем красное вино", uz: "Qizil vino bilan tavsiya etiladi", en: "Recommended with red wine" } },
+            { name: { ru: "Мясо по-французски", uz: "Fransuzcha go'sht", en: "French-style Baked Meat" }, price: "270 000 сум" },
+            { name: { ru: "Каре ягнёнка", uz: "Qo'zichoq qovurg'alari (Kare)", en: "Rack of Lamb" }, price: "395 000 сум" },
+            { name: { ru: "Перловая каша с говяжьими ребрами", uz: "Mol qovurg'asi bilan arpa bo'tqasi", en: "Pearl Barley with Beef Ribs" }, price: "155 000 сум" },
+            { name: { ru: "Голубцы «Гриб да гречка»", uz: "«Qo'ziqorin va grechka»li dolma (golubtsi)", en: "Mushroom & Buckwheat Cabbage Rolls" }, price: "110 000 сум" },
+            { name: { ru: "Паста А ля рус с черной икрой (30г)", uz: "Qora ikra bilan A la rus pastasi (30g)", en: "A la Russe Pasta with Black Caviar (30g)" }, price: "720 000 сум" }
+        ]
+    },
+    {
+        category: { ru: "Блюда на гриле", uz: "Gril taomlari", en: "Grilled Dishes" },
+        epigraph: {
+            ru: "«Бифштекс был рыхлый, сочный, но вместе с тем упругий...» — А. Аверченко",
+            uz: "«Bifshteks sersharbat va yumshoq edi...» — A. Averchenko",
+            en: "«The steak was tender, juicy, and perfectly seared...» — A. Averchenko"
+        },
+        items: [
+            { name: { ru: "Медальоны с картофелем и маринованным луком", uz: "Kartoshka va piyozi bilan medalonlar", en: "Beef Medallions with Potatoes & Pickled Onions" }, price: "325 000 сум" },
+            { name: { ru: "Мраромный стейк «Рибай»", uz: "«Ribay» marmar steyki", en: "Marbled Ribeye Steak" }, price: "1г / 2 200 сум" },
+            { name: { ru: "Стейк «DOM 29»", uz: "«DOM 29» steyki", en: "«DOM 29» Signature Steak" }, price: "390 000 сум", rec: { ru: "Рекомендуем водку или виски", uz: "Aroq yoki viski bilan", en: "Recommended with vodka or whiskey" } },
+            { name: { ru: "Цыплёнок на гриле с запечённым картофелем", uz: "Toblangan kartoshka bilan gril jo'ja", en: "Grilled Chicken with Baked Potatoes" }, price: "175 000 сум" },
+            { name: { ru: "Сёмга со шпинатом и спаржей", uz: "Shpinat va sparja bilan Semga balig'i", en: "Grilled Salmon with Spinach & Asparagus" }, price: "340 000 сум" },
+            { name: { ru: "Котлеты «Школьные»", uz: "«Maktabcha» kotletlar", en: "«School-style» Beef Patties" }, price: "150 000 сум" },
+            { name: { ru: "Сибас на гриле с овощами", uz: "Sabzavotlar bilan gril Sibas balig'i", en: "Grilled Sea Bass with Vegetables" }, price: "350 000 сум" },
+            { name: { ru: "Бургер «По-нашински»", uz: "«O'zimizcha» burger", en: "«Home-style» Beef Burger" }, price: "150 000 сум" }
+        ]
+    },
+    {
+        category: { ru: "Гарниры", uz: "Garnirlar", en: "Side Dishes" },
+        epigraph: {
+            ru: "«Гречка! Зерно к зерну... мягкие, горячие, переполненные соком и паром.» — Б. Окуджава",
+            uz: "«Grechka! Issiq va shirin...» — B. Okudjava",
+            en: "«Buckwheat! Soft, hot, full of flavor.» — B. Okudzhava"
+        },
+        items: [
+            { name: { ru: "Гречка с белыми грибами", uz: "Oq qo'ziqorinli grechka", en: "Buckwheat with Porcini Mushrooms" }, price: "115 000 сум" },
+            { name: { ru: "Картофельное пюре", uz: "Kartoshka pyuresi", en: "Mashed Potatoes" }, price: "40 000 сум" },
+            { name: { ru: "Картофельные дольки", uz: "Qovurilgan kartoshka bo'laklari", en: "Potato Wedges" }, price: "40 000 сум" },
+            { name: { ru: "Тушёная капуста", uz: "Dimlangan karam", en: "Stewed Cabbage" }, price: "35 000 сум" },
+            { name: { ru: "Запечённые овощи", uz: "Toblangan sabzavotlar", en: "Grilled Vegetables" }, price: "95 000 сум" },
+            { name: { ru: "Спаржа", uz: "Sparja", en: "Grilled Asparagus" }, price: "160 000 сум" },
+            { name: { ru: "Рис с овощами", uz: "Sabzavotli guruch", en: "Rice with Vegetables" }, price: "35 000 сум" },
+            { name: { ru: "Перловка", uz: "Arpa yormasi", en: "Pearl Barley" }, price: "35 000 сум" },
+            { name: { ru: "Горошек зелёный", uz: "Yashil noxat", en: "Green Peas" }, price: "35 000 сум" }
+        ]
+    },
+    {
+        category: { ru: "Выпечка", uz: "Pishiriqlar", en: "Bakery & Pies" },
+        epigraph: {
+            ru: "«Прошу покорно закусить, сказала хозяйка. Чичиков оглянулся и увидел пирожки...» — Н.В. Гоголь",
+            uz: "«Dasturxonga marhamat, dedi bekasi...» — N.V. Gogol",
+            en: "«Please help yourself, said the hostess...» — N.V. Gogol"
+        },
+        items: [
+            { name: { ru: "Пирожки с капустой", uz: "Karamli somsa / pirojki", en: "Cabbage Pies" }, price: "35 000 сум" },
+            { name: { ru: "Пирожки с картофелем", uz: "Kartoshkali pirojki", en: "Potato Pies" }, price: "35 000 сум" },
+            { name: { ru: "Беляши с мраморной говядиной", uz: "Marmar mol go'shtli bilyash", en: "Marbled Beef Belyash" }, price: "55 000 сум" },
+            { name: { ru: "Чебуреки", uz: "Chebureklar", en: "Chebureki" }, price: "45 000 сум" },
+            { name: { ru: "Расстегаи с мраморной говядиной", uz: "Marmar mol go'shtli rasstegay", en: "Marbled Beef Rasstegai" }, price: "55 000 сум" },
+            { name: { ru: "Пирожки с яйцом и зелёным луком", uz: "Tuxum va ko'k piyozli pirojki", en: "Egg & Green Onion Pies" }, price: "35 000 сум" },
+            { name: { ru: "Пирожки с печенью кролика", uz: "Quyon jigari bilan pirojki", en: "Rabbit Liver Pies" }, price: "45 000 сум" }
+        ]
+    },
+    {
+        category: { ru: "Десерты", uz: "Shirinliklar", en: "Desserts" },
+        epigraph: {
+            ru: "«Он такой же воздушный, как балерина Павлова.» — Б. Саше",
+            uz: "«U balerina Pavlova kabi nafis...» — B. Sashe",
+            en: "«It is as light and airy as ballerina Pavlova.» — B. Sache"
+        },
+        items: [
+            { name: { ru: "Трубочки «Детство» с заварным кремом", uz: "«Bolalik» kremli trubochkalari", en: "«Childhood» Custard Cream Horns" }, price: "60 000 сум" },
+            { name: { ru: "Меренговый рулет", uz: "Merenga ruleti", en: "Meringue Roll" }, price: "120 000 сум" },
+            { name: { ru: "Вишнёвый пирог с фисташковым мороженым", uz: "Pista muzqaymog'i bilan olmali/olchali pirog", en: "Cherry Pie with Pistachio Ice Cream" }, price: "120 000 сум" },
+            { name: { ru: "Медовик", uz: "Medovik torti", en: "Honey Cake (Medovik)" }, price: "110 000 сум" },
+            { name: { ru: "Бабушкин наполеон", uz: "Buvijonim Napoleon torti", en: "Grandma's Napoleon Cake" }, price: "110 000 сум" },
+            { name: { ru: "Шоколадный Фондан", uz: "Shokoladli Fondan", en: "Chocolate Fondant" }, price: "95 000 сум" },
+            { name: { ru: "Лавандовый Крем-Брюле", uz: "Lavandali Krem-Bryule", en: "Lavender Crème Brûlée" }, price: "120 000 сум" }
         ]
     }
 ];
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
+    });
+    document.getElementById('searchInput').placeholder = labels[lang].searchPlaceholder;
+    document.getElementById('footerNote').innerText = labels[lang].footer;
+    renderMenu();
+}
 
 function renderMenu() {
     const nav = document.getElementById('categoriesNav');
@@ -286,27 +474,29 @@ function renderMenu() {
     menuData.forEach((cat, idx) => {
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
-        btn.innerText = cat.category;
+        btn.innerText = cat.category[currentLang];
         btn.onclick = () => document.getElementById(`cat-${idx}`).scrollIntoView({ behavior: 'smooth' });
         nav.appendChild(btn);
 
         const section = document.createElement('div');
         section.id = `cat-${idx}`;
         
-        let html = `<div class="section-title">${cat.category}</div>`;
-        if (cat.epigraph) html += `<div class="epigraph">${cat.epigraph}</div>`;
+        let html = `<div class="section-title">${cat.category[currentLang]}</div>`;
+        if (cat.epigraph && cat.epigraph[currentLang]) {
+            html += `<div class="epigraph">${cat.epigraph[currentLang]}</div>`;
+        }
         
         html += `<div class="menu-grid">`;
         cat.items.forEach(dish => {
+            const recText = dish.rec ? dish.rec[currentLang] : null;
             html += `
                 <div class="dish-card">
-                    ${dish.photo ? `<img src="${dish.photo}" class="dish-img" alt="${dish.name}">` : ''}
                     <div class="dish-header">
-                        <span class="dish-name">${dish.name}</span>
+                        <span class="dish-name">${dish.name[currentLang]}</span>
                         <span class="dots"></span>
                         <span class="dish-price">${dish.price}</span>
                     </div>
-                    ${dish.rec ? `<div class="recommendation">(${dish.rec})</div>` : ''}
+                    ${recText ? `<div class="recommendation">(${recText})</div>` : ''}
                 </div>
             `;
         });
@@ -330,4 +520,3 @@ renderMenu();
 
 </body>
 </html>
-
